@@ -1,24 +1,64 @@
-//
-//  ContentView.swift
-//  ChargeHub
-//
-//  Created by mayoyo on 2026/6/26.
-//
-
 import SwiftUI
 
+private enum RootTab: Hashable {
+    case dashboard
+    case devices
+    case settings
+}
+
 struct ContentView: View {
+    @ObservedObject var store: DeviceStore
+    @State private var showingAddDevice = false
+    @State private var selectedTab: RootTab = .dashboard
+    @State private var deepLinkedDeviceID: UUID?
+
     var body: some View {
-        VStack {
-            Image(systemName: "globe")
-                .imageScale(.large)
-                .foregroundStyle(.tint)
-            Text("Hello, world!")
+        TabView(selection: $selectedTab) {
+            DashboardView(store: store, onAddTapped: { showingAddDevice = true })
+                .tabItem {
+                    Label("首页", systemImage: "bolt.badge.clock")
+                }
+                .tag(RootTab.dashboard)
+
+            DevicesView(
+                store: store,
+                onAddTapped: { showingAddDevice = true },
+                deepLinkedDeviceID: $deepLinkedDeviceID
+            )
+            .tabItem {
+                Label("设备", systemImage: "list.bullet.rectangle")
+            }
+            .tag(RootTab.devices)
+
+            SettingsView(store: store)
+                .tabItem {
+                    Label("设置", systemImage: "bell.badge")
+                }
+                .tag(RootTab.settings)
         }
-        .padding()
+        .sheet(isPresented: $showingAddDevice) {
+            NavigationStack {
+                DeviceFormView(store: store)
+            }
+        }
+        .onOpenURL { url in
+            guard let destination = ChargeHubDeepLink.destination(from: url) else {
+                return
+            }
+
+            showingAddDevice = false
+            selectedTab = .devices
+
+            switch destination {
+            case .home:
+                deepLinkedDeviceID = nil
+            case .device(let deviceID):
+                deepLinkedDeviceID = store.device(withID: deviceID) != nil ? deviceID : nil
+            }
+        }
     }
 }
 
 #Preview {
-    ContentView()
+    ContentView(store: DeviceStore(previewDevices: Device.previewDevices))
 }
