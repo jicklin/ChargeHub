@@ -39,6 +39,16 @@
 		BEFC95E92FEE687B00B385C8 /* ChargeHub.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = ChargeHub.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
+/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		BE4D06CF2FF4F50300D99771 /* Exceptions for "ChargeHub" folder in "ChargeHub" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Info.plist,
+			);
+			target = BEFC95E82FEE687B00B385C8 /* ChargeHub */;
+		};
+/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
+
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		1A2B3C4D5E6F000100000002 /* ChargeHubShared */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
@@ -52,6 +62,9 @@
 		};
 		BEFC95EB2FEE687B00B385C8 /* ChargeHub */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				BE4D06CF2FF4F50300D99771 /* Exceptions for "ChargeHub" folder in "ChargeHub" target */,
+			);
 			path = ChargeHub;
 			sourceTree = "<group>";
 		};
@@ -428,7 +441,10 @@
 				ENABLE_PREVIEWS = YES;
 				ENABLE_USER_SELECTED_FILES = readonly;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = ChargeHub/Info.plist;
 				INFOPLIST_KEY_CFBundleURLTypes = "{\n    CFBundleURLName = ChargeHub;\n    CFBundleURLSchemes =     (\n        chargehub\n    );\n}";
+				INFOPLIST_KEY_LSApplicationCategoryType = "";
+				INFOPLIST_KEY_NSPhotoLibraryAddUsageDescription = "保存资料图片到相册，便于在微信中从相册识别二维码。";
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphoneos*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphonesimulator*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents[sdk=iphoneos*]" = YES;
@@ -475,7 +491,10 @@
 				ENABLE_PREVIEWS = YES;
 				ENABLE_USER_SELECTED_FILES = readonly;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = ChargeHub/Info.plist;
 				INFOPLIST_KEY_CFBundleURLTypes = "{\n    CFBundleURLName = ChargeHub;\n    CFBundleURLSchemes =     (\n        chargehub\n    );\n}";
+				INFOPLIST_KEY_LSApplicationCategoryType = "";
+				INFOPLIST_KEY_NSPhotoLibraryAddUsageDescription = "保存资料图片到相册，便于在微信中从相册识别二维码。";
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphoneos*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphonesimulator*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents[sdk=iphoneos*]" = YES;

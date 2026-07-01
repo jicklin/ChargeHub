@@ -57,7 +57,9 @@ struct DeviceFormView: View {
 
                             TextField("0-100", text: $chargeLevelText)
                                 .multilineTextAlignment(.center)
-                                .keyboardType(.numberPad)
+                                #if os(iOS)
+                                    .keyboardType(.numberPad)
+                                #endif
                                 .frame(width: 56)
 
                             Divider()
@@ -99,7 +101,9 @@ struct DeviceFormView: View {
 
                         TextField("1-365", text: $reminderDaysText)
                             .multilineTextAlignment(.center)
-                            .keyboardType(.numberPad)
+                            #if os(iOS)
+                                .keyboardType(.numberPad)
+                            #endif
                             .frame(width: 56)
 
                         Divider()

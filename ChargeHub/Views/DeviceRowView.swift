@@ -15,10 +15,12 @@ struct DeviceRowView: View {
                 Text(device.name)
                     .font(.headline)
 
-                Text("\(device.category.title) · 上次充电 \(device.lastChargedDateText) · \(device.chargeLevelText)")
-                    .font(.subheadline)
-                    .foregroundStyle(.secondary)
-                    .lineLimit(2)
+                Text(
+                    "\(device.category.title) · 上次充电 \(device.lastChargedDateText) · \(device.chargeLevelText)"
+                )
+                .font(.subheadline)
+                .foregroundStyle(.secondary)
+                .lineLimit(2)
             }
 
             Spacer(minLength: 12)

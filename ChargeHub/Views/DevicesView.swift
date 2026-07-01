@@ -21,7 +21,8 @@ struct DevicesView: View {
                             }
                             .contextMenu {
                                 Button("标记今天已充电") {
-                                    store.markCharged(deviceID: device.id, level: device.lastChargeLevel)
+                                    store.markCharged(
+                                        deviceID: device.id, level: device.lastChargeLevel)
                                 }
                                 Button("记录充到 80%") {
                                     store.markCharged(deviceID: device.id, level: 80)
@@ -52,7 +53,7 @@ struct DevicesView: View {
             .navigationDestination(for: UUID.self) { deviceID in
                 DeviceDetailView(store: store, deviceID: deviceID)
             }
-            .searchable(text: $searchText, prompt: "搜索设备名称")
+            .searchable(text: $searchText, prompt: "搜索设备名称、备注")
             .toolbar {
                 ToolbarItem(placement: .primaryAction) {
                     Button(action: onAddTapped) {

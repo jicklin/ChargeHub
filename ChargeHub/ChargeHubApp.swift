@@ -3,19 +3,20 @@ import SwiftUI
 @main
 struct ChargeHubApp: App {
     @StateObject private var store = DeviceStore()
+    @StateObject private var referencePhotoStore = ReferencePhotoStore()
 
     @SceneBuilder
     var body: some Scene {
         WindowGroup {
-            ContentView(store: store)
+            ContentView(store: store, referencePhotoStore: referencePhotoStore)
         }
 
-#if os(macOS)
-        MenuBarExtra(menuBarTitle, systemImage: menuBarSymbolName) {
-            MenuBarContentView(store: store)
-        }
-        .menuBarExtraStyle(.window)
-#endif
+        #if os(macOS)
+            MenuBarExtra(menuBarTitle, systemImage: menuBarSymbolName) {
+                MenuBarContentView(store: store)
+            }
+            .menuBarExtraStyle(.window)
+        #endif
     }
 
     private var menuBarTitle: String {

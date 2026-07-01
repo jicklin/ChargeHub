@@ -160,6 +160,8 @@ struct DeviceDetailView: View {
 
 #Preview {
     NavigationStack {
-        DeviceDetailView(store: DeviceStore(previewDevices: Device.previewDevices), deviceID: Device.previewDevices[0].id)
+        DeviceDetailView(
+            store: DeviceStore(previewDevices: Device.previewDevices),
+            deviceID: Device.previewDevices[0].id)
     }
 }

@@ -3,11 +3,13 @@ import SwiftUI
 private enum RootTab: Hashable {
     case dashboard
     case devices
+    case references
     case settings
 }
 
 struct ContentView: View {
     @ObservedObject var store: DeviceStore
+    @ObservedObject var referencePhotoStore: ReferencePhotoStore
     @State private var showingAddDevice = false
     @State private var selectedTab: RootTab = .dashboard
     @State private var deepLinkedDeviceID: UUID?
@@ -29,6 +31,12 @@ struct ContentView: View {
                 Label("设备", systemImage: "list.bullet.rectangle")
             }
             .tag(RootTab.devices)
+
+            ReferencePhotosView(store: referencePhotoStore)
+                .tabItem {
+                    Label("资料", systemImage: "photo.stack")
+                }
+                .tag(RootTab.references)
 
             SettingsView(store: store)
                 .tabItem {
@@ -60,5 +68,8 @@ struct ContentView: View {
 }
 
 #Preview {
-    ContentView(store: DeviceStore(previewDevices: Device.previewDevices))
+    ContentView(
+        store: DeviceStore(previewDevices: Device.previewDevices),
+        referencePhotoStore: ReferencePhotoStore(previewItems: ReferencePhoto.previewItems)
+    )
 }
