@@ -181,7 +181,24 @@ final class DeviceStore: ObservableObject {
     }
 
     func mergeDevices(from data: Data) throws -> ImportSummary {
-        let importedDevices = try decodeImportedDevices(from: data)
+        try mergeDevices(from: data, allowEmpty: false)
+    }
+
+    func replaceDevicesFromSync(from data: Data) throws -> ImportSummary {
+        let importedDevices = try decodeImportedDevices(from: data, allowEmpty: true)
+        devices = importedDevices
+        persistAndRefreshNotifications()
+        return ImportSummary(
+            total: importedDevices.count, added: importedDevices.count, updated: 0,
+            replacedAll: true)
+    }
+
+    func mergeDevicesFromSync(from data: Data) throws -> ImportSummary {
+        try mergeDevices(from: data, allowEmpty: true)
+    }
+
+    private func mergeDevices(from data: Data, allowEmpty: Bool) throws -> ImportSummary {
+        let importedDevices = try decodeImportedDevices(from: data, allowEmpty: allowEmpty)
 
         var mergedDevices = devices
         var indexByID = Dictionary(
@@ -219,11 +236,12 @@ final class DeviceStore: ObservableObject {
         }
     }
 
-    private func decodeImportedDevices(from data: Data) throws -> [Device] {
+    private func decodeImportedDevices(from data: Data, allowEmpty: Bool = false) throws -> [Device]
+    {
         let decoder = JSONDecoder()
         let importedDevices = try decoder.decode([Device].self, from: data)
 
-        guard !importedDevices.isEmpty else {
+        guard allowEmpty || !importedDevices.isEmpty else {
             throw ImportError.emptyData
         }
 

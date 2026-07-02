@@ -4,6 +4,7 @@ import WidgetKit
 struct ChargeHubWidgetEntry: TimelineEntry {
     let date: Date
     let devices: [Device]
+    let reminders: [LifeReminder]
 
     var activeDevices: [Device] {
         devices.filter { !$0.isArchived }
@@ -18,7 +19,9 @@ struct ChargeHubWidgetEntry: TimelineEntry {
                 false
             }
         }
-        .sorted { $0.daysSinceCharge(referenceDate: date) > $1.daysSinceCharge(referenceDate: date) }
+        .sorted {
+            $0.daysSinceCharge(referenceDate: date) > $1.daysSinceCharge(referenceDate: date)
+        }
     }
 
     var upcomingDevices: [Device] {
@@ -28,27 +31,87 @@ struct ChargeHubWidgetEntry: TimelineEntry {
             }
             return false
         }
-        .sorted { $0.daysSinceCharge(referenceDate: date) > $1.daysSinceCharge(referenceDate: date) }
+        .sorted {
+            $0.daysSinceCharge(referenceDate: date) > $1.daysSinceCharge(referenceDate: date)
+        }
+    }
+
+    var activeReminders: [LifeReminder] {
+        reminders
+            .filter { !$0.isCompleted || $0.repeatsAnnually }
+            .sorted {
+                $0.nextOccurrence(referenceDate: date) < $1.nextOccurrence(referenceDate: date)
+            }
+    }
+
+    var dueReminders: [LifeReminder] {
+        activeReminders.filter {
+            switch $0.reminderState(referenceDate: date) {
+            case .overdue, .dueToday:
+                true
+            default:
+                false
+            }
+        }
+    }
+
+    var upcomingReminders: [LifeReminder] {
+        activeReminders.filter {
+            if case .upcoming = $0.reminderState(referenceDate: date) {
+                return true
+            }
+            return false
+        }
+    }
+
+    var priorityReminderItems: [WidgetReminderItem] {
+        let reminderItems = (dueReminders + upcomingReminders).map(WidgetReminderItem.lifeReminder)
+        let deviceItems = (dueDevices + upcomingDevices).map(WidgetReminderItem.device)
+        return Array((reminderItems + deviceItems).prefix(4))
+    }
+}
+
+enum WidgetReminderItem: Identifiable {
+    case lifeReminder(LifeReminder)
+    case device(Device)
+
+    var id: UUID {
+        switch self {
+        case .lifeReminder(let reminder): reminder.id
+        case .device(let device): device.id
+        }
     }
 }
 
 struct ChargeHubWidgetProvider: TimelineProvider {
     func placeholder(in context: Context) -> ChargeHubWidgetEntry {
-        ChargeHubWidgetEntry(date: .now, devices: Device.previewDevices)
+        ChargeHubWidgetEntry(
+            date: .now,
+            devices: Device.previewDevices,
+            reminders: LifeReminder.previewItems
+        )
     }
 
     func getSnapshot(in context: Context, completion: @escaping (ChargeHubWidgetEntry) -> Void) {
         completion(makeEntry())
     }
 
-    func getTimeline(in context: Context, completion: @escaping (Timeline<ChargeHubWidgetEntry>) -> Void) {
+    func getTimeline(
+        in context: Context, completion: @escaping (Timeline<ChargeHubWidgetEntry>) -> Void
+    ) {
         let entry = makeEntry()
-        let nextUpdate = Calendar.current.date(byAdding: .hour, value: 6, to: .now) ?? .now.addingTimeInterval(6 * 60 * 60)
+        let nextUpdate =
+            Calendar.current.date(byAdding: .hour, value: 6, to: .now)
+            ?? .now.addingTimeInterval(6 * 60 * 60)
         completion(Timeline(entries: [entry], policy: .after(nextUpdate)))
     }
 
     private func makeEntry() -> ChargeHubWidgetEntry {
-        ChargeHubWidgetEntry(date: .now, devices: SharedStorage.loadDevices())
+        ChargeHubWidgetEntry(
+            date: .now,
+            devices: SharedStorage.loadDevices(),
+            reminders: SharedStorage.loadLifeReminders()
+        )
     }
 }
 
@@ -67,23 +130,23 @@ struct ChargeHubWidgetEntryView: View {
 
     private var smallView: some View {
         VStack(alignment: .leading, spacing: 8) {
-            Label("ChargeHub", systemImage: "bolt.badge.clock")
+            Label("ChargeHub", systemImage: "bell.badge")
                 .font(.headline)
 
-            if let firstDue = entry.dueDevices.first {
-                Text("该充电")
+            if let firstItem = entry.priorityReminderItems.first {
+                Text(kindText(for: firstItem))
                     .font(.caption)
                     .foregroundStyle(.secondary)
-                Text(firstDue.name)
+                Text(titleText(for: firstItem))
                     .font(.title3.weight(.semibold))
                     .lineLimit(2)
-                Text(statusText(for: firstDue))
+                Text(statusText(for: firstItem))
                     .font(.caption)
-                    .foregroundStyle(.red)
+                    .foregroundStyle(color(for: firstItem))
             } else {
-                Text("没有到期设备")
+                Text("暂无近期提醒")
                     .font(.title3.weight(.semibold))
-                Text(entry.upcomingDevices.isEmpty ? "都在安全周期内" : "最近几天有设备将到期")
+                Text("设备、事件和生日都在安全范围内")
                     .font(.caption)
                     .foregroundStyle(.secondary)
             }
@@ -97,35 +160,31 @@ struct ChargeHubWidgetEntryView: View {
     private var mediumView: some View {
         HStack(alignment: .top, spacing: 14) {
             VStack(alignment: .leading, spacing: 8) {
-                Label("待补电设备", systemImage: "battery.25")
+                Label("近期提醒", systemImage: "bell.badge")
                     .font(.headline)
-                Text("\(entry.dueDevices.count)")
+                Text("\(entry.priorityReminderItems.count)")
                     .font(.system(size: 30, weight: .bold, design: .rounded))
-                Text(entry.dueDevices.isEmpty ? "当前无到期设备" : "优先处理逾期或今天提醒的设备")
+                Text(entry.priorityReminderItems.isEmpty ? "暂无需要关注的提醒" : "包含设备、事件和生日")
                     .font(.caption)
                     .foregroundStyle(.secondary)
             }
             .frame(maxWidth: .infinity, alignment: .leading)
 
             VStack(alignment: .leading, spacing: 6) {
-                ForEach(Array((entry.dueDevices.isEmpty ? entry.upcomingDevices : entry.dueDevices).prefix(3))) { device in
-                    Link(destination: ChargeHubDeepLink.deviceURL(id: device.id)) {
-                        VStack(alignment: .leading, spacing: 2) {
-                            Text(device.name)
-                                .font(.subheadline.weight(.semibold))
-                                .lineLimit(1)
-                            Text(statusText(for: device))
-                                .font(.caption)
-                                .foregroundStyle(.secondary)
-                        }
-                        .frame(maxWidth: .infinity, alignment: .leading)
-                        .contentShape(Rectangle())
+                ForEach(entry.priorityReminderItems.prefix(3)) { item in
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text(titleText(for: item))
+                            .font(.subheadline.weight(.semibold))
+                            .lineLimit(1)
+                        Text("\(kindText(for: item)) · \(statusText(for: item))")
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
                     }
-                    .buttonStyle(.plain)
+                    .frame(maxWidth: .infinity, alignment: .leading)
                 }
 
-                if entry.dueDevices.isEmpty && entry.upcomingDevices.isEmpty {
-                    Text("添加设备后，这里会显示即将到期和已到期项目。")
+                if entry.priorityReminderItems.isEmpty {
+                    Text("添加事件、生日或设备后，这里会显示近期需要处理的项目。")
                         .font(.caption)
                         .foregroundStyle(.secondary)
                 }
@@ -133,6 +192,7 @@ struct ChargeHubWidgetEntryView: View {
             .frame(maxWidth: .infinity, alignment: .leading)
         }
         .containerBackground(.background, for: .widget)
+        .widgetURL(primaryWidgetURL)
     }
 
     private var primaryWidgetURL: URL {
@@ -143,16 +203,54 @@ struct ChargeHubWidgetEntryView: View {
         return ChargeHubDeepLink.rootURL()
     }
 
-    private func statusText(for device: Device) -> String {
-        switch device.reminderState(referenceDate: entry.date) {
-        case .overdue(let days):
-            return "已逾期 \(days) 天"
-        case .dueToday:
-            return "今天提醒"
-        case .upcoming(let daysRemaining):
-            return "还有 \(daysRemaining) 天"
-        case .normal(let daysRemaining):
-            return "还有 \(daysRemaining) 天"
+    private func kindText(for item: WidgetReminderItem) -> String {
+        switch item {
+        case .lifeReminder(let reminder): reminder.kind.title
+        case .device: "补电"
+        }
+    }
+
+    private func titleText(for item: WidgetReminderItem) -> String {
+        switch item {
+        case .lifeReminder(let reminder):
+            reminder.trimmedTitle.isEmpty ? reminder.kind.title : reminder.trimmedTitle
+        case .device(let device): device.name
+        }
+    }
+
+    private func statusText(for item: WidgetReminderItem) -> String {
+        switch item {
+        case .lifeReminder(let reminder):
+            switch reminder.reminderState(referenceDate: entry.date) {
+            case .overdue(let days): "已逾期 \(days) 天"
+            case .dueToday: "今天"
+            case .upcoming(let days): "还有 \(days) 天"
+            case .future(let days): "还有 \(days) 天"
+            }
+        case .device(let device):
+            switch device.reminderState(referenceDate: entry.date) {
+            case .overdue(let days): "已逾期 \(days) 天"
+            case .dueToday: "今天提醒"
+            case .upcoming(let daysRemaining): "还有 \(daysRemaining) 天"
+            case .normal(let daysRemaining): "还有 \(daysRemaining) 天"
+            }
+        }
+    }
+
+    private func color(for item: WidgetReminderItem) -> Color {
+        switch item {
+        case .lifeReminder(let reminder):
+            switch reminder.reminderState(referenceDate: entry.date) {
+            case .overdue, .dueToday: .red
+            case .upcoming: .orange
+            case .future: .secondary
+            }
+        case .device(let device):
+            switch device.reminderState(referenceDate: entry.date) {
+            case .overdue, .dueToday: .red
+            case .upcoming: .orange
+            case .normal: .secondary
+            }
         }
     }
 }
@@ -164,8 +262,8 @@ struct ChargeHubWidget: Widget {
         StaticConfiguration(kind: kind, provider: ChargeHubWidgetProvider()) { entry in
             ChargeHubWidgetEntryView(entry: entry)
         }
-        .configurationDisplayName("待补电设备")
-        .description("查看哪些低频设备已经到提醒周期。")
+        .configurationDisplayName("ChargeHub 提醒")
+        .description("查看近期事件、生日和待补电设备。")
         .supportedFamilies([.systemSmall, .systemMedium])
     }
 }
@@ -173,5 +271,9 @@ struct ChargeHubWidget: Widget {
 #Preview(as: .systemSmall) {
     ChargeHubWidget()
 } timeline: {
-    ChargeHubWidgetEntry(date: .now, devices: Device.previewDevices)
+    ChargeHubWidgetEntry(
+        date: .now,
+        devices: Device.previewDevices,
+        reminders: LifeReminder.previewItems
+    )
 }

@@ -4,11 +4,20 @@ import SwiftUI
 struct ChargeHubApp: App {
     @StateObject private var store = DeviceStore()
     @StateObject private var referencePhotoStore = ReferencePhotoStore()
+    @StateObject private var lifeReminderStore = LifeReminderStore()
+    @StateObject private var tripStore = TripStore()
+    @StateObject private var syncManager = InfiniCloudSyncManager()
 
     @SceneBuilder
     var body: some Scene {
         WindowGroup {
-            ContentView(store: store, referencePhotoStore: referencePhotoStore)
+            ContentView(
+                store: store,
+                referencePhotoStore: referencePhotoStore,
+                lifeReminderStore: lifeReminderStore,
+                tripStore: tripStore,
+                syncManager: syncManager
+            )
         }
 
         #if os(macOS)

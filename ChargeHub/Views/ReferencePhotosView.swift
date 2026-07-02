@@ -478,9 +478,17 @@ private struct ReferencePhotoDetailView: View {
 
                 #if os(iOS)
                     if let schemaURL = zhuangXiaoMengSchemaURLs[code] {
-                        Button("打开微信小程序") {
-                            openWeChatURL(schemaURL)
-//                            WeChatBypassLauncher.shared.startBypass(url: schemaURL)
+                        Button("复制直达地址") {
+                            copyToPasteboard(schemaURL.absoluteString)
+                            actionAlert = ReferencePhotoActionAlert(
+                                title: "已复制直达地址",
+                                message: "请粘贴到微信聊天中点击打开，微信会弹出“即将打开桩小盟+小程序”的确认页。"
+                            )
+                        }
+
+                        Button("复制并打开微信") {
+                            copyToPasteboard(schemaURL.absoluteString)
+                            openWeChatHome()
                         }
                     } else if zhuangXiaoMengLoadingCodes.contains(code) {
                         ProgressView()
@@ -502,7 +510,7 @@ private struct ReferencePhotoDetailView: View {
                         .font(.footnote)
                         .foregroundStyle(.secondary)
                 } else if let schemaURL = zhuangXiaoMengSchemaURLs[code] {
-                    Text("优先使用桩盟接口返回的直达地址")
+                    Text("从应用或浏览器直接拉起微信可能进入体验版；如需稳定进入正式版，请复制直达地址到微信聊天中点击打开。")
                         .font(.footnote)
                         .foregroundStyle(.secondary)
 
@@ -511,15 +519,15 @@ private struct ReferencePhotoDetailView: View {
                         .font(.footnote.monospaced())
                         .foregroundStyle(.secondary)
 
-                    Button("复制小程序码") {
+                    Button("复制原始二维码链接") {
                         copyToPasteboard(code)
                         actionAlert = ReferencePhotoActionAlert(
-                        title: "已复制小程序码",
-                       message: "小程序码已经复制到剪贴板。"
-                     )
+                            title: "已复制原始二维码链接",
+                            message: "桩盟原始二维码链接已经复制到剪贴板。"
+                        )
                     }
                     .buttonStyle(.bordered)
-                    
+
                 } else if let errorMessage = zhuangXiaoMengErrors[code] {
                     Text(errorMessage)
                         .font(.footnote)
@@ -596,6 +604,17 @@ private struct ReferencePhotoDetailView: View {
                 guard !success else { return }
                 weChatAlert = WeChatAlert(
                     title: "无法打开微信小程序",
+                    message: "请确认当前设备已安装微信，并允许从 ChargeHub 跳转。"
+                )
+            }
+        }
+
+        private func openWeChatHome() {
+            guard let url = URL(string: "weixin://") else { return }
+            UIApplication.shared.open(url, options: [:]) { success in
+                guard !success else { return }
+                weChatAlert = WeChatAlert(
+                    title: "无法打开微信",
                     message: "请确认当前设备已安装微信，并允许从 ChargeHub 跳转。"
                 )
             }
