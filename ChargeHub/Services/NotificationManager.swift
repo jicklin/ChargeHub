@@ -70,7 +70,7 @@ struct NotificationManager {
         return reminderDates.enumerated().map { index, date in
             let content = UNMutableNotificationContent()
             content.title = "该给 \(device.name) 充电了"
-            content.body = "它已达到你设置的 \(device.remindAfterDays) 天提醒周期。打开 ChargeHub 记录一下最新状态。"
+            content.body = "它已达到你设置的 \(device.remindAfterDays) 天提醒周期。打开呦呦百宝箱记录一下最新状态。"
             content.sound = .default
 
             let components = calendar.dateComponents(

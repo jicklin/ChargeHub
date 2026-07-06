@@ -29,7 +29,7 @@ struct ChargeHubApp: App {
     }
 
     private var menuBarTitle: String {
-        store.dueDevices.isEmpty ? "ChargeHub" : "ChargeHub · \(store.dueDevices.count)"
+        store.dueDevices.isEmpty ? "呦呦百宝箱" : "呦呦百宝箱 · \(store.dueDevices.count)"
     }
 
     private var menuBarSymbolName: String {

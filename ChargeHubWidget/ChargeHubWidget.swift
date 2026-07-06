@@ -130,7 +130,7 @@ struct ChargeHubWidgetEntryView: View {
 
     private var smallView: some View {
         VStack(alignment: .leading, spacing: 8) {
-            Label("ChargeHub", systemImage: "bell.badge")
+            Label("呦呦百宝箱", systemImage: "bell.badge")
                 .font(.headline)
 
             if let firstItem = entry.priorityReminderItems.first {
@@ -262,7 +262,7 @@ struct ChargeHubWidget: Widget {
         StaticConfiguration(kind: kind, provider: ChargeHubWidgetProvider()) { entry in
             ChargeHubWidgetEntryView(entry: entry)
         }
-        .configurationDisplayName("ChargeHub 提醒")
+        .configurationDisplayName("呦呦百宝箱")
         .description("查看近期事件、生日和待补电设备。")
         .supportedFamilies([.systemSmall, .systemMedium])
     }

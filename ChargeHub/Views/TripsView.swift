@@ -1,59 +1,58 @@
 import SwiftUI
 
-struct TripsView: View {
+struct TripsContentView: View {
     @ObservedObject var store: TripStore
     @State private var showingAddTrip = false
 
     var body: some View {
-        NavigationStack {
-            List {
-                Section("统计") {
-                    LabeledContent("旅行数", value: "\(store.trips.count)")
-                    LabeledContent("总花销", value: currencyText(store.totalExpense))
+        List {
+            Section("统计") {
+                LabeledContent("旅行数", value: "\(store.trips.count)")
+                LabeledContent("总花销", value: currencyText(store.totalExpense))
 
-                    ForEach(store.expensesByCategory, id: \.category) { item in
-                        LabeledContent(item.category.title, value: currencyText(item.amount))
-                    }
+                ForEach(store.expensesByCategory, id: \.category) { item in
+                    LabeledContent(item.category.title, value: currencyText(item.amount))
                 }
+            }
 
-                Section("旅行") {
-                    if store.sortedTrips.isEmpty {
-                        ContentUnavailableView(
-                            "还没有旅行记录",
-                            systemImage: "airplane.departure",
-                            description: Text("记录每次旅行的交通、住宿、餐饮等花销，并查看统计分析。")
-                        )
-                    } else {
-                        ForEach(store.sortedTrips) { trip in
-                            NavigationLink {
-                                TripDetailView(store: store, tripID: trip.id)
-                            } label: {
-                                TripRowView(trip: trip)
-                            }
+            Section("旅行") {
+                if store.sortedTrips.isEmpty {
+                    ContentUnavailableView(
+                        "还没有旅行记录",
+                        systemImage: "airplane.departure",
+                        description: Text("记录每次旅行的交通、住宿、餐饮等花销，并查看统计分析。")
+                    )
+                } else {
+                    ForEach(store.sortedTrips) { trip in
+                        NavigationLink {
+                            TripDetailView(store: store, tripID: trip.id)
+                        } label: {
+                            TripRowView(trip: trip)
                         }
-                        .onDelete { offsets in
-                            let trips = store.sortedTrips
-                            for offset in offsets {
-                                store.deleteTrip(id: trips[offset].id)
-                            }
+                    }
+                    .onDelete { offsets in
+                        let trips = store.sortedTrips
+                        for offset in offsets {
+                            store.deleteTrip(id: trips[offset].id)
                         }
                     }
                 }
             }
-            .navigationTitle("旅行")
-            .toolbar {
-                ToolbarItem(placement: .primaryAction) {
-                    Button {
-                        showingAddTrip = true
-                    } label: {
-                        Label("添加旅行", systemImage: "plus")
-                    }
+        }
+        .navigationTitle("旅行")
+        .navigationBarTitleDisplayMode(.inline)
+        .toolbar {
+            ToolbarItem(placement: .primaryAction) {
+                Button {
+                    showingAddTrip = true
+                } label: {
+                    Label("添加旅行", systemImage: "plus")
                 }
             }
-            .sheet(isPresented: $showingAddTrip) {
-                NavigationStack {
-                    TripFormView(store: store)
-                }
+        }
+        .sheet(isPresented: $showingAddTrip) {
+            NavigationStack {
+                TripFormView(store: store)
             }
         }
     }
@@ -369,5 +368,7 @@ private func shortDateText(_ date: Date) -> String {
 }
 
 #Preview {
-    TripsView(store: TripStore(previewTrips: Trip.previewItems))
+    NavigationStack {
+        TripsContentView(store: TripStore(previewTrips: Trip.previewItems))
+    }
 }

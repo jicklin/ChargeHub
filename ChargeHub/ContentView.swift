@@ -4,9 +4,8 @@ private enum RootTab: Hashable {
     case dashboard
     case devices
     case reminders
-    case trips
     case references
-    case settings
+    case more
 }
 
 struct ContentView: View {
@@ -48,29 +47,25 @@ struct ContentView: View {
                 }
                 .tag(RootTab.reminders)
 
-            TripsView(store: tripStore)
-                .tabItem {
-                    Label("旅行", systemImage: "airplane.departure")
-                }
-                .tag(RootTab.trips)
-
             ReferencePhotosView(store: referencePhotoStore)
                 .tabItem {
                     Label("资料", systemImage: "photo.stack")
                 }
                 .tag(RootTab.references)
 
-            SettingsView(
-                store: store,
-                referencePhotoStore: referencePhotoStore,
-                lifeReminderStore: lifeReminderStore,
-                tripStore: tripStore,
-                syncManager: syncManager
-            )
-            .tabItem {
-                Label("设置", systemImage: "bell.badge")
+            NavigationStack {
+                MoreView(
+                    store: store,
+                    referencePhotoStore: referencePhotoStore,
+                    lifeReminderStore: lifeReminderStore,
+                    tripStore: tripStore,
+                    syncManager: syncManager
+                )
             }
-            .tag(RootTab.settings)
+            .tabItem {
+                Label("更多", systemImage: "ellipsis.circle")
+            }
+            .tag(RootTab.more)
         }
         .sheet(isPresented: $showingAddDevice) {
             NavigationStack {

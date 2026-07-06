@@ -443,6 +443,7 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = ChargeHub/Info.plist;
 				INFOPLIST_KEY_CFBundleURLTypes = "{\n    CFBundleURLName = ChargeHub;\n    CFBundleURLSchemes =     (\n        chargehub\n    );\n}";
+				INFOPLIST_KEY_CFBundleDisplayName = "呦呦百宝箱";
 				INFOPLIST_KEY_LSApplicationCategoryType = "";
 				INFOPLIST_KEY_NSPhotoLibraryAddUsageDescription = "保存资料图片到相册，便于在微信中从相册识别二维码。";
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphoneos*]" = YES;
@@ -493,6 +494,7 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = ChargeHub/Info.plist;
 				INFOPLIST_KEY_CFBundleURLTypes = "{\n    CFBundleURLName = ChargeHub;\n    CFBundleURLSchemes =     (\n        chargehub\n    );\n}";
+				INFOPLIST_KEY_CFBundleDisplayName = "呦呦百宝箱";
 				INFOPLIST_KEY_LSApplicationCategoryType = "";
 				INFOPLIST_KEY_NSPhotoLibraryAddUsageDescription = "保存资料图片到相册，便于在微信中从相册识别二维码。";
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphoneos*]" = YES;

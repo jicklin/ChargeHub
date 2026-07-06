@@ -308,10 +308,10 @@ private struct ReferencePhotoDetailView: View {
                         } footer: {
                             #if os(iOS)
                                 Text(
-                                    "ChargeHub 会先尝试直接识别当前图片中的二维码内容。像桩盟这类已接入规则的平台，会优先生成“微信小程序直达”按钮；其他依赖微信环境的二维码，仍建议先点“分享当前图片到微信”，必要时再用“保存图片到相册（备用）”。"
+                                    "呦呦百宝箱会先尝试直接识别当前图片中的二维码内容。像桩盟这类已接入规则的平台，会优先生成“微信小程序直达”按钮；其他依赖微信环境的二维码，仍建议先点“分享当前图片到微信”，必要时再用“保存图片到相册（备用）”。"
                                 )
                             #else
-                                Text("ChargeHub 会自动解析当前资料图片中的二维码内容；部分依赖微信生态的二维码仍需在微信内处理。")
+                                Text("呦呦百宝箱会自动解析当前资料图片中的二维码内容；部分依赖微信生态的二维码仍需在微信内处理。")
                             #endif
                         }
                     }
@@ -592,7 +592,7 @@ private struct ReferencePhotoDetailView: View {
                 guard !success else { return }
                 weChatAlert = WeChatAlert(
                     title: "无法打开微信",
-                    message: "请确认当前设备已安装微信，并允许从 ChargeHub 跳转。"
+                    message: "请确认当前设备已安装微信，并允许从呦呦百宝箱跳转。"
                 )
             }
         #endif
@@ -604,7 +604,7 @@ private struct ReferencePhotoDetailView: View {
                 guard !success else { return }
                 weChatAlert = WeChatAlert(
                     title: "无法打开微信小程序",
-                    message: "请确认当前设备已安装微信，并允许从 ChargeHub 跳转。"
+                    message: "请确认当前设备已安装微信，并允许从呦呦百宝箱跳转。"
                 )
             }
         }
@@ -615,7 +615,7 @@ private struct ReferencePhotoDetailView: View {
                 guard !success else { return }
                 weChatAlert = WeChatAlert(
                     title: "无法打开微信",
-                    message: "请确认当前设备已安装微信，并允许从 ChargeHub 跳转。"
+                    message: "请确认当前设备已安装微信，并允许从呦呦百宝箱跳转。"
                 )
             }
         }
@@ -834,7 +834,7 @@ private enum ReferencePhotoSaveError: LocalizedError {
     var errorDescription: String? {
         switch self {
         case .permissionDenied:
-            return "请允许 ChargeHub 添加照片到相册，之后再试。"
+            return "请允许呦呦百宝箱添加照片到相册，之后再试。"
         case .saveFailed:
             return "保存到相册失败，请稍后重试。"
         }

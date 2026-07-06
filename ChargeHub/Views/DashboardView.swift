@@ -95,7 +95,7 @@ struct DashboardView: View {
                     }
                 }
             }
-            .navigationTitle("ChargeHub")
+            .navigationTitle("呦呦百宝箱")
             .toolbar {
                 ToolbarItem(placement: .primaryAction) {
                     Button(action: onAddTapped) {
